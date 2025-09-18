@@ -9,11 +9,14 @@ use App\Models\ProductImage;
 class ProductController extends Controller
 {
     public function index_cargar(){
-        return Inertia::render('Cargar_productos');
+        $categories = Category::orderBy('name')->get();
+        return Inertia::render('Cargar_productos', [
+        'categories' => $categories,
+    ]);
     }
 
     public function index_editar(){
-        return Inertia::render('Editar_productos');
+        return Inertia::render('Cargar_productos');
     }
 
     public function store_cargar(Request $request){
