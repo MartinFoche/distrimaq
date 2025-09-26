@@ -8,82 +8,119 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Product;
 use App\Models\Category;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\ProductImage;
-use App\Imports\ProductsImport; // Esta clase la creás para definir cómo importar
+use App\Imports\ProductsImport;
+use Illuminate\Support\Facades\Log;
 
 class ProductImportController extends Controller
 {
-    public function import(Request $request)
-    {
-        $import = new ProductsImport;
-        $import->import($request->file('file'));
-
-        if ($import->failures()->isNotEmpty()) {
-            $errores = [];
-
-            foreach ($import->failures() as $failure) {
-                $errores[] = 'Fila ' . $failure->row() . ': ' . implode(', ', $failure->errors());
-            }
-
-            return response()->json([
-                'success' => false,
-                'errors' => $errores,
-            ], 422);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Importación completada con éxito.',
-        ]);
-    }
-
-public function importUpdate(Request $request)
+    public function importUpdate(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls',
+            'file' => 'required|mimes:xlsx,csv,txt'
         ]);
 
-        $path = $request->file('file')->getRealPath();
-        $data = array_map('str_getcsv', file($path));
+        $spreadsheet = IOFactory::load($request->file('file')->getPathname());
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray(null, true, true, true);
 
-        // Asumimos que la primera fila son los encabezados
-        $headers = array_map('trim', $data[0]);
-        unset($data[0]); // Quitamos los headers
-
-        $updated = 0;
-        $skipped = 0;
-        $errors = [];
-
-        foreach ($data as $index => $row) {
-            $row = array_combine($headers, $row);
-            $sku = trim($row['sku'] ?? '');
-
-            if (empty($sku)) {
-                $skipped++;
-                $errors[] = "Error en fila " . ($index + 2) . ": No se encontro SKU";
-                continue;
+        $headerRow = null;
+        foreach ($rows as $i => $row) {
+            foreach ($row as $cell) {
+                if ($cell && strtolower(trim($cell)) === 'id') {
+                    $headerRow = $i;
+                    break 2;
+                }
             }
+        }
+
+        if (!$headerRow) {
+            throw new \Exception("No se encontraron encabezados en el archivo");
+        }
+
+        $headers = array_map(function ($h) {
+        $h = trim(mb_strtolower($h));             
+        $h = preg_replace('/\s+/', '_', $h);      
+        $h = iconv('UTF-8', 'ASCII//TRANSLIT', $h); 
+
+        // Mapa de alias para casos raros
+        $map = [
+                "descripci_on" => "descripcion",
+                "descripci'on" => "descripcion", 
+                "descripcion"  => "descripcion",
+                "precio"       => "precio",
+                "sku"          => "sku",
+                "id"           => "id",
+            ];
+
+            return $map[$h] ?? $h;
+        }, $rows[$headerRow]);
+
+
+        $rows = array_slice($rows, $headerRow);
+        $currentCategory = null;
+        $created = 0;
+        $updated = 0;
+        $omitted = 0;
+        
+        foreach ($rows as $row) {
+            $rowData = [];
+            foreach ($headers as $key => $header) {
+                if (!$header) continue;
+                $rowData[$header] = $row[$key] ?? null;
+            }
+            $id = $rowData['id'] ?? '';
+            $partSku = $rowData['sku'] ?? '';
+            $sku = trim($id . $partSku);
+            $price = $this->parsePrice($rowData['precio'] ?? '');
+            
+            if (!$sku && !$price && !empty($rowData['descripcion'])) {
+                $currentCategory = trim($rowData['descripcion']);
+                continue; 
+            }
+
+            if (!$sku) continue;
 
             $product = Product::where('sku', $sku)->first();
 
             if ($product) {
-                try {
+                if ($product->price != $price) { 
                     $product->update([
-                        'description' => $row['descripcion'] ?? $product->description,
-                        'price' => $row['precio'] ?? $product->price,
+                        'price' => $price,
                     ]);
                     $updated++;
-                } catch (\Exception $e) {
-                    $errors[] = "Error en fila " . ($index + 2) . ": " . $e->getMessage();
+                }
+                else{
+                    $omitted++;
                 }
             } else {
-                $skipped++;
+                $product = Product::create([
+                    'sku'         => $sku,
+                    'description' => $rowData['descripcion'] ?? '',
+                    'price'       => $price,
+                ]);
+                $category = Category::firstOrCreate(['name' => $currentCategory]);
+                $product->categories()->syncWithoutDetaching([$category->id]);
+                $created++;
             }
         }
-
         return response()->json([
-            'message' => "No se encontraron $skipped productos",
-            'errors' => $errors,
+            'message' => "Importación completada. Productos creados: $created, actualizados: $updated, omitidos: $omitted."
         ]);
+    }
+
+    private function parsePrice($value)
+    {
+        $value = trim((string)$value);
+
+        if ($value === '' || stripos($value, 'sin stock') !== false) {
+            return 0;
+        }
+
+        $value = str_replace(['$', ' '], '', $value);
+        $value = str_replace(',', '', $value); 
+
+        return (float) $value;
     }
 }

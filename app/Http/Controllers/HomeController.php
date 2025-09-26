@@ -17,7 +17,7 @@ class HomeController extends Controller
                 $q->where('categories.id', $request->category);
             });
         }
-        $products = $query->limit(10)->get();
+        $products = $query->orderBy('description')->paginate(25);
 
         $categories = Category::orderBy('name')->get();
 

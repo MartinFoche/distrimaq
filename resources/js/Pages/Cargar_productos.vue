@@ -3,7 +3,17 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { useForm } from "@inertiajs/vue3";
 import { onMounted, ref } from "vue";
 import axios from "axios";
+import Toast from "@/Components/Toast.vue";
 
+const toastMessage = ref("");
+const toastType = ref("info");
+const toastShow = ref(false);
+
+function showToast(message, type = "info") {
+  toastMessage.value = message;
+  toastType.value = type;
+  toastShow.value = true;
+}
 const form = useForm({
     description: "",
     sku: "",
@@ -20,7 +30,7 @@ const product = ref([]);
 const search = ref("");
 const hasSearched = ref(false);
 
-defineProps({
+const props = defineProps({
   categories: Array
 })
 
@@ -38,6 +48,9 @@ function submit() {
             setTimeout(() => {
                 productoCargado.value = false;
             }, 4000);
+            setTimeout(() => {
+              location.reload(); 
+            }, 1000);
         },
     });
 }
@@ -52,12 +65,9 @@ function importSubmit() {
     axios
         .post("/import-products", formData)
         .then((response) => {
-            alert(response.data.message);
-            archive.reset();
-            errores.value = [];
-            cargados.value = true;
+            showToast(response.data.message, "success");
             setTimeout(() => {
-                cargados.value = false;
+              location.reload(); 
             }, 4000);
         })
         .catch((error) => {
@@ -94,6 +104,7 @@ onMounted(async () => {
     }
 });
 
+
 function getImageError(index) {
     return form.errors[`images.${index}`] || "";
 }
@@ -125,7 +136,6 @@ const formEditar = ref({
 
 function empezarEdicion(item) {
     productoEditando.value = item.id;
-    productoEditando.value = item.id;
     console.log("item.images:");
     formEditar.value = {
         id: item.id,
@@ -153,7 +163,7 @@ async function guardarEdicion() {
             (p) => p.id === formEditar.value.id
         );
         if (index !== -1) {
-            product.value[index] = { ...formEditar.value };
+            product.value[index] = { ...formEditar.value, images: formEditar.value.images.map(url => ({ url })) };
         }
         productoEditando.value = null;
     } catch (error) {
@@ -310,22 +320,7 @@ async function guardarEdicion() {
                                 Importar
                             </button>
                         </form>
-                        <div
-                            v-if="cargados"
-                            class="bg-green-100 text-green-500 p-4 rounded mb-4"
-                        >
-                            Productos cargados exitosamente.
-                        </div>
-                        <div
-                            v-if="errores.length"
-                            class="bg-red-100 text-red-700 p-4 rounded mb-4"
-                        >
-                            <ul>
-                                <li v-for="(error, index) in errores" :key="index">
-                                    {{ error }}
-                                </li>
-                            </ul>
-                        </div>
+                        <Toast :message="toastMessage" :type="toastType" :show="toastShow" />
                     </div>
                 </div>
             </div>
@@ -398,13 +393,15 @@ async function guardarEdicion() {
                                 >
                                     <input
                                         v-model="formEditar.images[index]"
+                                        @blur="formEditar.images[index] = formEditar.images[index].trim()"
                                         type="text"
                                         :id="'edit-image-' + index"
                                         placeholder="https://img1.jpg"
-                                    />
+                                        />
                                     <img
                                         v-if="formEditar.images[index]"
                                         :src="formEditar.images[index]"
+                                        :key="formEditar.images[index]"
                                         alt="Preview"
                                         style="
                                             max-height: 50px;
@@ -412,6 +409,7 @@ async function guardarEdicion() {
                                             border: 1px solid #ccc;
                                             padding: 2px;
                                         "
+                                        @error="event => event.target.src = '/img/placeholder.png'"
                                     />
                                     <div
                                         v-if="errorsEditar[`images.${index}`]"

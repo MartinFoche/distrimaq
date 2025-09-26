@@ -6,6 +6,21 @@ body {
     background-color: #d6d6d6d3;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1; 
+}
+
 img {
     display: block;
     width: 100%;
@@ -102,7 +117,13 @@ select:focus {
 }
 
 .form-group-cargar {
-    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    justify-content: center;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .label-cargar{
@@ -142,7 +163,7 @@ select:focus {
 .select-cargar {
     width: 100%;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    border-radius: 10px;
 }
 .input-with-symbol {
     position: relative;
@@ -166,8 +187,8 @@ select:focus {
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); 
-    gap: 16px;
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 30px;
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;
@@ -333,6 +354,7 @@ select:focus {
 .category-home {
     color: rgb(172, 3, 3);
     margin-bottom: 0px;
+    margin-top: 5px;
 }
 .importar-container {
     display: flex;
@@ -402,4 +424,72 @@ select:focus {
 }
 .add-image-cargar:hover{
     scale: 1.05;
+}
+
+footer{
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    background-color: rgb(172, 3, 3);
+}
+
+.no-products {
+    text-align: center;
+    color: #555; 
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 40px 0;
+}
+
+.pagination-container{
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    background-color: white;
+    height: 50px;
+    font-size: 25px;
+    padding: 0 10px; 
+    border-radius: 25px;
+    font-weight: bold;
+    color: black;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.438);
+}
+
+.pagination-button{
+    background-color: rgb(172, 3, 3);
+    font-weight: bold;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.438);
+}
+
+.pagination-button:hover{
+    scale: 1.1;
+}
+
+@media (max-width: 1450px) {
+    .product-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap:20px;
+    }
+    .nombre-producto{
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 1050px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap:15px;
+    }
 }

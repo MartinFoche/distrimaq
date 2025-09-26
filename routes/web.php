@@ -34,8 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/cargar_productos/search', [ProductController::class, 'search_products']);
     Route::delete('/cargar_productos/delete/{id}', [ProductController::class, 'destroy']);
     Route::put('/cargar_productos/update/{id}', [ProductController::class, 'update']);
-    Route::post('/import-products', [ProductImportController::class, 'import']);
-    Route::post('/import-products/update', [ProductImportController::class, 'importUpdate']);
+    Route::post('/import-products', [ProductImportController::class, 'importUpdate']);
 
 });
 
