@@ -1,1 +1,3 @@
-<h1> https://catalogo-distrimaq.vercel.app /</h1>
+<a href="https://catalogo-distrimaq.vercel.app/" target="_blank" rel="noopener noreferrer">
+    Visitar Catálogo Distrimaq
+</a>
