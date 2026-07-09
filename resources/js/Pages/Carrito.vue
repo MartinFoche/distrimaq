@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { onMounted } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { getCarrito } from '@/utils/useCarrito';
@@ -12,10 +12,11 @@ onMounted(() => {
 
 <template>
   <AuthenticatedLayout>
-    <div v-if="carrito.length === 0">
+    <div class="container-carrito " v-if="carrito.length === 0">
       <p>El carrito está vacío.</p>
     </div>
-    <div v-else>
+    <div class="container-carrito" v-else>
+        <h1 class="title-carrito">Carrito</h1>
         <div class="product-grid">
             <div v-for="item in carrito" :key="item.id" class="card-home">
                     <div class="carrito-detalles">
@@ -40,16 +41,22 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
-            <div class="carrito-total">
-                <h2>Total: $ {{ total }}</h2>
+            <div class="carrito-controllers">
+                <div>
+                    <h2 class="carrito-total"><b> Total: </b> $ {{ total }}</h2>
+                </div>
+                <div class="buttons-carrito">
+                    <button class="boton-borrar-carrito" @click="clearCarrito">
+                        Borrar Carrito
+                    </button>
+                    <button class="boton-enviar-carrito" @click="sendCarrito">
+                        Enviar Pedido
+                    </button>
+                </div>
+
             </div>
-            <button class="boton-borrar-carrito" @click="clearCarrito">
-                Borrar Carrito
-            </button>
-            <button class="boton-enviar-carrito" @click="sendCarrito">
-                Enviar Pedido
-            </button>
+
         </div>
-      
+
   </AuthenticatedLayout>
 </template>

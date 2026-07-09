@@ -49,7 +49,7 @@ function submit() {
                 productoCargado.value = false;
             }, 4000);
             setTimeout(() => {
-              location.reload(); 
+              location.reload();
             }, 1000);
         },
     });
@@ -67,7 +67,7 @@ function importSubmit() {
         .then((response) => {
             showToast(response.data.message, "success");
             setTimeout(() => {
-              location.reload(); 
+              location.reload();
             }, 4000);
         })
         .catch((error) => {
@@ -124,7 +124,7 @@ const buscarProducto = async () => {
         loading.value = false;
     }
 };
-const productoEditando = ref(null); 
+const productoEditando = ref(null);
 
 const formEditar = ref({
     id: null,
@@ -195,7 +195,7 @@ async function guardarEdicion() {
                         </div>
 
                         <div class="form-group-cargar">
-                            <label class="label-cargar" for="categories">Categoría</label><br />
+                            <label class="label-cargar" for="categories">Categoría</label>
                             <select v-model="form.category" class="select-cargar">
                                 <option value="">
                                     Seleccioná una categoría
@@ -345,7 +345,7 @@ async function guardarEdicion() {
                     <div v-for="(item, index) in product" :key="index" class="edit-data">
                         <div  v-if="productoEditando !== item.id" class="info-edit">
                             <img
-                                v-if="item.images?.length" 
+                                v-if="item.images?.length"
                                 :src="item.images[0].url"
                                 alt="Imagen del producto"
                                 class="card-image-edit"
@@ -363,78 +363,93 @@ async function guardarEdicion() {
                                 </p>
                                 <p><strong>Precio:</strong> ${{ item.price }}</p>
                             </div>
-                            
+
                         </div>
-                        <div v-else>
+                        <div v-else class="editing-info">
                             <p><strong>SKU:</strong> {{ formEditar.sku }}</p>
-                            <input
-                                v-model="formEditar.description"
-                                placeholder="Descripción"
-                            />
-                            <input
-                                v-model="formEditar.price"
-                                type="number"
-                                placeholder="Precio"
-                            />
-                            <div
-                                v-for="(image, index) in formEditar.images"
-                                :key="'edit-image-' + index"
-                                class="form-group-cargar"
-                            >
-                                <label :for="'edit-image-' + index"
-                                    >Imagen {{ index + 1 }}</label
-                                >
+                            <div class="editing-data">
+                                <strong class="editing-data-text">Nombre: </strong>
+                                <input
+                                    v-model="formEditar.description"
+                                    placeholder="Descripción"
+                                    class="editing-data-box"
+                                />
+                            </div>
+                            <div class="editing-data">
+                                <strong class="editing-data-text">Precio: </strong>
+                                <input
+                                    v-model="formEditar.price"
+                                    type="number"
+                                    placeholder="Precio"
+                                    class="editing-data-box"
+                                />
+                            </div>
+                            <div class="editing-data-img">
+                                <strong class="editing-data-text">Imagenes: </strong>
                                 <div
-                                    style="
-                                        display: flex;
-                                        gap: 10px;
-                                        align-items: center;
-                                    "
-                                >
-                                    <input
-                                        v-model="formEditar.images[index]"
-                                        @blur="formEditar.images[index] = formEditar.images[index].trim()"
-                                        type="text"
-                                        :id="'edit-image-' + index"
-                                        placeholder="https://img1.jpg"
-                                        />
-                                    <img
-                                        v-if="formEditar.images[index]"
-                                        :src="formEditar.images[index]"
-                                        :key="formEditar.images[index]"
-                                        alt="Preview"
-                                        style="
-                                            max-height: 50px;
-                                            max-width: 50px;
-                                            border: 1px solid #ccc;
-                                            padding: 2px;
-                                        "
-                                        @error="event => event.target.src = '/img/placeholder.png'"
-                                    />
-                                    <div
-                                        v-if="errorsEditar[`images.${index}`]"
-                                        class="text-red-500 text-sm"
+                                        v-for="(image, index) in formEditar.images"
+                                        :key="'edit-image-' + index"
+                                        class="form-group-cargar"
                                     >
-                                        {{ errorsEditar[`images.${index}`][0] }}
+                                        <label :for="'edit-image-' + index" style="color: rgb(172, 3, 3);"
+                                            >Imagen {{ index + 1 }}</label
+                                        >
+                                        <div
+                                            style="
+                                                display: flex;
+                                                gap: 10px;
+                                                align-items: center;
+                                            "
+                                        >
+                                            <input
+                                                v-model="formEditar.images[index]"
+                                                @blur="formEditar.images[index] = formEditar.images[index].trim()"
+                                                type="text"
+                                                :id="'edit-image-' + index"
+                                                placeholder="https://img1.jpg"
+                                                />
+                                            <img
+                                                v-if="formEditar.images[index]"
+                                                :src="formEditar.images[index]"
+                                                :key="formEditar.images[index]"
+                                                alt="Preview"
+                                                style="
+                                                    max-height: 50px;
+                                                    max-width: 50px;
+                                                    border: 1px solid #ccc;
+                                                    padding: 2px;
+                                                "
+                                                @error="event => event.target.src = '/img/placeholder.png'"
+                                            />
+                                            <div
+                                                v-if="errorsEditar[`images.${index}`]"
+                                                class="text-red-500 text-sm"
+                                            >
+                                                {{ errorsEditar[`images.${index}`][0] }}
+                                            </div>
+                                            <button
+                                                @click.prevent="
+                                                    formEditar.images.splice(index, 1)
+                                                "
+                                                style="color: red"
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button
-                                        @click.prevent="
-                                            formEditar.images.splice(index, 1)
-                                        "
-                                        style="color: red"
-                                    >
-                                        🗑️
-                                    </button>
+                                    <div class="buttons-edit-img">
+                                        <button @click.prevent="formEditar.images.push('')">
+                                        ➕ Añadir Imagen
+                                        </button>
+                                        <button @click="guardarEdicion">💾 Guardar</button>
+                                        <button @click="productoEditando = null">
+                                            ❌ Cancelar
+                                        </button>
+                                        </div>
+
                                 </div>
                             </div>
-                            <button @click.prevent="formEditar.images.push('')">
-                                ➕ Añadir Imagen
-                            </button>
-                            <button @click="guardarEdicion">💾 Guardar</button>
-                            <button @click="productoEditando = null">
-                                ❌ Cancelar
-                            </button>
-                        </div>
+
 
                         <div class="buttons-edit-trash">
                             <button class="button-edit-trash" @click="eliminarProducto(item.id)">🗑</button>

@@ -28,7 +28,7 @@ class ProductImportController extends Controller
         $headerRow = null;
         foreach ($rows as $i => $row) {
             foreach ($row as $cell) {
-                if ($cell && strtolower(trim($cell)) === 'id') {
+                if ($cell && strtolower(trim($cell)) === 'sku') {
                     $headerRow = $i;
                     break 2;
                 }
@@ -40,14 +40,14 @@ class ProductImportController extends Controller
         }
 
         $headers = array_map(function ($h) {
-        $h = trim(mb_strtolower($h));             
-        $h = preg_replace('/\s+/', '_', $h);      
-        $h = iconv('UTF-8', 'ASCII//TRANSLIT', $h); 
+        $h = trim(mb_strtolower($h));
+        $h = preg_replace('/\s+/', '_', $h);
+        $h = iconv('UTF-8', 'ASCII//TRANSLIT', $h);
 
         // Mapa de alias para casos raros
         $map = [
                 "descripci_on" => "descripcion",
-                "descripci'on" => "descripcion", 
+                "descripci'on" => "descripcion",
                 "descripcion"  => "descripcion",
                 "precio"       => "precio",
                 "sku"          => "sku",
@@ -59,39 +59,35 @@ class ProductImportController extends Controller
 
 
         $rows = array_slice($rows, $headerRow);
-        $currentCategory = null;
         $created = 0;
         $updated = 0;
         $omitted = 0;
-        
+
         foreach ($rows as $row) {
             $rowData = [];
+
             foreach ($headers as $key => $header) {
                 if (!$header) continue;
                 $rowData[$header] = $row[$key] ?? null;
             }
-            $id = $rowData['id'] ?? '';
-            $partSku = $rowData['sku'] ?? '';
-            $sku = trim($id . $partSku);
+
+            $sku = trim(($rowData['id'] ?? '') . ($rowData['sku'] ?? ''));
             $price = $this->parsePrice($rowData['precio'] ?? '');
-            
-            if (!$sku && !$price && !empty($rowData['descripcion'])) {
-                $currentCategory = trim($rowData['descripcion']);
-                continue; 
-            }
+            $categoryName = $rowData['categoria'] ?? null;
 
             if (!$sku) continue;
+
+            Log::info($rowData);
 
             $product = Product::where('sku', $sku)->first();
 
             if ($product) {
-                if ($product->price != $price) { 
+                if ($product->price != $price) {
                     $product->update([
                         'price' => $price,
                     ]);
                     $updated++;
-                }
-                else{
+                } else {
                     $omitted++;
                 }
             } else {
@@ -100,9 +96,16 @@ class ProductImportController extends Controller
                     'description' => $rowData['descripcion'] ?? '',
                     'price'       => $price,
                 ]);
-                $category = Category::firstOrCreate(['name' => $currentCategory]);
-                $product->categories()->syncWithoutDetaching([$category->id]);
                 $created++;
+            }
+
+            // 👉 AHORA sí, asociamos categoría
+            if ($categoryName) {
+                $category = Category::firstOrCreate([
+                    'name' => trim($categoryName)
+                ]);
+
+                $product->categories()->syncWithoutDetaching([$category->id]);
             }
         }
         return response()->json([
@@ -119,7 +122,7 @@ class ProductImportController extends Controller
         }
 
         $value = str_replace(['$', ' '], '', $value);
-        $value = str_replace(',', '', $value); 
+        $value = str_replace(',', '', $value);
 
         return (float) $value;
     }

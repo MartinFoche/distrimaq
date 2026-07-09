@@ -18,7 +18,7 @@ html, body {
 }
 
 .main-content {
-    flex: 1; 
+    flex: 1;
 }
 
 img {
@@ -40,8 +40,8 @@ select:focus {
 .header {
     display: flex;
     background-color: white;
-    color: #c00; 
-    border-bottom: 1px solid #c00; 
+    color: #c00;
+    border-bottom: 1px solid #c00;
     width: 100%;
     height: 100px;
     box-shadow: 0 2px 4px rgba(85, 85, 85, 0.1);
@@ -116,14 +116,61 @@ select:focus {
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.568);
 }
 
-.form-group-cargar {
+.container-carrito {
+    background-color: #d4d4d4;
+    margin: 5%;
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.568);
+}
+
+
+.carrito-controllers{
     display: flex;
     flex-direction: column;
-    width: 50%;
     justify-content: center;
+    align-items: center;
+    width: 15%;
     margin: auto;
     margin-top: 20px;
-    margin-bottom: 20px;
+    padding: 10px 10px;
+}
+
+.carrito-total{
+    text-align: center;
+    font-size: 25px;
+    margin-bottom: 10px;
+    color: rgb(172, 3, 3);
+}
+.buttons-carrito{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap:5px;
+}
+.form-group-cargar-home {
+    width: 48%;
+}
+.search-container-name{
+    width: 48%;
+}
+.search-name-input{
+    width: 100%;
+    border-radius: 5px;
+}
+.search-container{
+    display: flex;
+    flex-direction: row;
+    width: 60%;
+    justify-content: space-between;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    background-color: #f0f0f0;
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.568);
 }
 
 .label-cargar{
@@ -163,7 +210,8 @@ select:focus {
 .select-cargar {
     width: 100%;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border-radius: 5px;
+    height: 100%;
 }
 .input-with-symbol {
     position: relative;
@@ -183,11 +231,12 @@ select:focus {
     padding: 8px;
     font-size: 16px;
     padding-left: 25px;
+    border-radius: 5px;
 }
 
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); 
+    grid-template-columns: repeat(5, 1fr);
     gap: 30px;
     margin-top: 10px;
     margin-left: 10px;
@@ -293,7 +342,7 @@ select:focus {
     color: white;
     background-color: #5f5f5f;
     scale: 1.05;
-    
+
 }
 
 .result-edit {
@@ -301,6 +350,7 @@ select:focus {
     flex-direction: column;
     margin-top: 25px;
     padding: 0px 25px;
+    padding-bottom: 25px;
 }
 
 .edit-title {
@@ -335,6 +385,21 @@ select:focus {
     margin-bottom: 10px;
     color: rgb(172, 3, 3);
 }
+.title-search-home {
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: rgb(172, 3, 3);
+}
+
+.title-carrito {
+    text-align: center;
+    font-size: 35px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: rgb(172, 3, 3);
+}
+
 .title-editar{
     margin-top: 25px;
     text-align: center;
@@ -373,15 +438,33 @@ select:focus {
 
 .boton-borrar-carrito{
     background-color: red;
+    padding: 5px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.568);
 }
 
 .boton-enviar-carrito{
     background-color: green;
+    padding: 5px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.568);
+    transition: all 0.3s ease;
+}
+.boton-borrar-carrito:hover{
+    scale: 1.1;
+}
+.boton-enviar-carrito:hover{
+    scale: 1.1;
 }
 
 .general-container-cargar-editar{
     display: grid;
-    grid-template-columns: repeat(2, 1fr); 
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .editar-container{
@@ -404,7 +487,31 @@ select:focus {
     flex-direction: row;
     gap: 20px;
 }
+.editing-info{
+    display: flex;
+    flex-direction: column;
+}
 
+.editing-data{
+    display: flex;
+    margin-top: 10px;
+}
+.editing-data-box{
+    width: 100%;
+    border-radius: 5px;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+}
+.editing-data-text{
+    display: flex;
+    margin: auto 0;
+    margin-right: 10px;
+}
+.editing-data-img{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
 .buttons-edit-trash{
     display: flex;
     flex-direction: row;
@@ -435,7 +542,7 @@ footer{
 
 .no-products {
     text-align: center;
-    color: #555; 
+    color: #555;
     font-size: 1.2rem;
     font-weight: bold;
     margin: 40px 0;
@@ -450,7 +557,7 @@ footer{
     background-color: white;
     height: 50px;
     font-size: 25px;
-    padding: 0 10px; 
+    padding: 0 10px;
     border-radius: 25px;
     font-weight: bold;
     color: black;
